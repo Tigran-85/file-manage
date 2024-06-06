@@ -38,4 +38,14 @@ module.exports = class BaseService {
           validationError
         }
       }
+
+  serverErrorResponse(error) {
+    return {
+      status: false,
+      statusCode: 500,
+      data: error,
+      message: "Server Error",
+      validationError: {}
+    }
+  }
 };

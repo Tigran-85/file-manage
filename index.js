@@ -10,6 +10,7 @@ const app = express();
 
 // routes
 const authRoutes = require("./routes/authRoutes");
+const fileRoutes = require("./routes/fileRoutes");
 
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
@@ -25,6 +26,7 @@ app.use(
 // use routes
 
 app.use("/api/auth", authRoutes);
+app.use("/api/file", fileRoutes);
 
 app.use(errorMiddleware);  
 

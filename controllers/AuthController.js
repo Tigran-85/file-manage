@@ -13,15 +13,33 @@ class AuthenticationController {
       }
   }
 
-  async signIn(req, res) {
-    const data = await this.authService.signIn(req);
-    res.status(data.statusCode).json(data);
+  async signIn(req, res, next) {
+    const data = await this.authService.signIn(req, res, next);
+    if (data) {
+      res.status(data.statusCode).json(data);
+    }
   }
 
   
-  async resendVerificationToken(req, res) {
-    const data = await this.authService.resendVerificationToken(req);
-    res.status(data.statusCode).json(data);
+  async logout(req, res, next) {
+    const data = await this.authService.logout(req, res, next);
+    if (data) {
+      res.status(data.statusCode).json(data);
+    }
+  }
+
+  async refresh(req, res, next) {
+    const data = await this.authService.refresh(req, res, next);
+    if (data) {
+      res.status(data.statusCode).json(data);
+    }
+  }
+
+  async userInfo(req, res, next) {
+    const data = await this.authService.userInfo(req, res, next);
+    if (data) {
+      res.status(data.statusCode).json(data);
+    }
   }
 }
 

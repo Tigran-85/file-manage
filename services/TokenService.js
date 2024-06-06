@@ -1,6 +1,5 @@
 const jwt = require("jsonwebtoken");
 const { refreshTokens: tokenModel } = require("../models/index");
-const { accept } = require("../common/validationMessage");
 
 class TokenService {
     createToken(payload, secret, expiresIn) {
@@ -31,6 +30,25 @@ class TokenService {
 
         return token;
     }
+
+    validateToken(token, secret) {
+        try {
+            const userData = jwt.verify(token, secret);
+            return userData;
+        } catch (error) {
+            return null;
+        }
+    }
+
+    async findToken(token) {
+        const tokenData = await tokenModel.findOne({
+            where: {
+                refreshtoken: token
+            }
+        });
+        return tokenData;
+    }
+    
 }
 
 module.exports = new TokenService();    
