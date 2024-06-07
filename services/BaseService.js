@@ -33,8 +33,8 @@ module.exports = class BaseService {
         return {
           status,
           statusCode,
-          data,
           message,
+          data,
           validationError
         }
       }

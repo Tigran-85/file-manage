@@ -20,6 +20,7 @@ const allowedFileTypes = [
   "text/plain",
   "application/pdf",
 ];
+
 const fileFilter = (req, file, cb) => {
   if (allowedFileTypes.includes(file.mimetype)) {
     cb(null, true);

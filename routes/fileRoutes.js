@@ -15,4 +15,34 @@ router.post(
       .uploadFiles.bind(fileController)
 );
 
+router.get(
+    '/list',
+    fileController
+      .getFiles.bind(fileController)
+);
+
+router.get(
+    '/:id',
+    fileController
+      .getFileById.bind(fileController)
+);
+
+router.put(
+    '/update/:id',
+    fileController
+      .updateFile.bind(fileController)
+);
+
+router.delete(
+    '/delete/:id',
+    fileController
+      .deleteFile.bind(fileController)
+);
+
+router.get(
+    '/download/:id',
+    fileController
+      .downloadFile.bind(fileController)
+);
+
 module.exports = router;

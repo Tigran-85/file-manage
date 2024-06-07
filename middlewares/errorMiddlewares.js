@@ -12,12 +12,11 @@ module.exports = function(err, req, res, next) {
     }
 
     if (err instanceof multer.MulterError) {
-        return res.status(400).json(baseService.serverErrorResponse(err));
-      } else if (err) {
-        console.log(err);
+        return res.status(400).json({
+            message: err.message ? err.message : err.code
+         })
+    }
 
-        return res.status(400).json(baseService.serverErrorResponse(err));
-      }
-
+    console.log(err);
     return res.status(500).json({ message: "Internal Server Error" })
 }

@@ -18,7 +18,10 @@ module.exports = (sequelize, DataTypes) => {
     extension: DataTypes.STRING,
     mimeType: DataTypes.STRING,
     size: DataTypes.INTEGER,
-    dateOfUpload: DataTypes.DATE
+    createdAt: {
+      field: 'uploadDate',
+      type: DataTypes.DATE,
+    },
   }, {
     sequelize,
     modelName: 'files',
