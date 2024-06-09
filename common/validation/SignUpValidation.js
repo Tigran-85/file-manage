@@ -1,15 +1,15 @@
 const { body } = require("express-validator");
 
-const validationMessage = require("../validationMessage");
+const { VALIDATION_ERROR_MESSAGES } = require("../validationMessage");
 
 module.exports = [
-  body("email").trim().isEmail().withMessage(validationMessage.email),
+  body("email").trim().isEmail().withMessage(VALIDATION_ERROR_MESSAGES.EMAIL),
 
   body("password")
     .trim()
     .not()
     .isEmpty()
-    .withMessage(validationMessage.required)
+    .withMessage(VALIDATION_ERROR_MESSAGES.REQUIRED)
     .matches(/^(?=(.*?[A-Z]){3,}).{3,}$/)
     .withMessage("Min 3 uppercase letter")
     .matches(/^(?=(.*[a-z]){3,}).{3,}$/)

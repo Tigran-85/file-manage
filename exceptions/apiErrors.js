@@ -1,3 +1,5 @@
+const { ERROR_MESSAGES } = require("../common/validationMessage");
+
 module.exports = class ApiError extends Error {
     status;
     errors;
@@ -9,7 +11,7 @@ module.exports = class ApiError extends Error {
     }
 
     static UnauthorizedError() {
-        return new ApiError(401, 'Unauthorized');
+        return new ApiError(401, ERROR_MESSAGES.UNAUTHORIZED);
     }
 
     static BadRequest(message, errors = []) {

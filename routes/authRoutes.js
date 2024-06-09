@@ -8,7 +8,7 @@ const SignUpValidation = require("../common/validation/SignUpValidation");
 
 const authMiddleware = require("../middlewares/authMiddleware");
 
-const { Router } = require('express');
+const { Router } = require("express");
 const router = Router();
 
 router.post(

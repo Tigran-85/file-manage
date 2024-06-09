@@ -8,6 +8,7 @@
     "db-create-users": "npx sequelize-cli model:generate --name users --attributes email:string,password:string",
     "db-create-refreshTokens": "npx sequelize-cli model:generate --name refreshTokens --attributes user:string,refreshToken:string",
     "db-create-files": "npx sequelize-cli model:generate --name files --attributes name:string,extension:string,mimeType:string,size:integer",
+    "db-create-blacklists": "npx sequelize-cli model:generate --name BlacklistedToken --attributes token:string,expiry:date",
     "migrate": "npx sequelize-cli db:migrate",
     "db-up": "npx sequelize-cli db:seed:all",
     "db-down": "npx sequelize-cli db:seed:undo"

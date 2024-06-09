@@ -1,4 +1,5 @@
 const { validationResult } = require("express-validator");
+const { ERROR_MESSAGES } = require("../common/validationMessage");
 
 module.exports = class BaseService {
 
@@ -44,7 +45,7 @@ module.exports = class BaseService {
       status: false,
       statusCode: 500,
       data: error,
-      message: "Server Error",
+      message: ERROR_MESSAGES.SERVER_ERROR,
       validationError: {}
     }
   }

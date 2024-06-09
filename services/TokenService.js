@@ -1,5 +1,5 @@
 const jwt = require("jsonwebtoken");
-const { refreshTokens: tokenModel } = require("../models/index");
+const { refreshTokens: tokenModel, BlacklistedToken: blacklistedModel } = require("../models/index");
 
 class TokenService {
     createToken(payload, secret, expiresIn) {
@@ -47,6 +47,16 @@ class TokenService {
             }
         });
         return tokenData;
+    }
+
+    async addTokenToBlacklist(token) {
+        const decoded = jwt.decode(token);
+        const expiry = new Date(decoded.exp * 1000);
+
+        const tokenData = await blacklistedModel.create({
+            token,
+            expiry
+        });
     }
     
 }

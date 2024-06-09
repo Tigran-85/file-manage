@@ -1,9 +1,10 @@
-const bcrypt = require('bcrypt');
-const BaseService = require('./BaseService');
-const tokenService = require('./TokenService');
+const bcrypt = require("bcrypt");
+const BaseService = require("./BaseService");
+const tokenService = require("./TokenService");
 const { users: userModel, refreshTokens: tokenModel } = require("../models/index");
-const UserDto = require('../dtos/user.dto');
-const ApiError = require('../exceptions/apiErrors');
+const UserDto = require("../dtos/user.dto");
+const ApiError = require("../exceptions/apiErrors");
+const { VALIDATION_ERROR_MESSAGES, RESPONSE_MESSAGES, ERROR_MESSAGES } = require("../common/validationMessage");
 
 module.exports = class AuthService extends BaseService {
 
@@ -17,7 +18,7 @@ module.exports = class AuthService extends BaseService {
 
             const err = this.handleErrors(req);
             if (err.hasErrors) {
-                return next(ApiError.BadRequest("Validation Error", err.body))
+                return next(ApiError.BadRequest(VALIDATION_ERROR_MESSAGES.VALIDATION_ERROR, err.body))
             }
 
             const userExists = await userModel.findOne({
@@ -25,7 +26,7 @@ module.exports = class AuthService extends BaseService {
             });
 
             if (userExists) {
-                throw ApiError.BadRequest(`User ${userExists.email} already registered`);
+                throw ApiError.BadRequest(ERROR_MESSAGES.USER_EXIST);
             }
 
             const hashPassword = await bcrypt.hash(password, +process.env.SALT);
@@ -48,7 +49,6 @@ module.exports = class AuthService extends BaseService {
                 }
             });
         } catch (error) {
-            console.log(error);
             next(error);
         }
     }
@@ -59,10 +59,14 @@ module.exports = class AuthService extends BaseService {
             where: { email }
         });
 
+        if (!user) {
+            throw ApiError.BadRequest(ERROR_MESSAGES.INVALID_CREDENTIALS);
+        }
+
         const isPassEquals = await bcrypt.compare(password, user.password);
 
         if (!user || !isPassEquals) {
-            throw ApiError.BadRequest('Incorrect email and/or password');
+            throw ApiError.BadRequest(ERROR_MESSAGES.INVALID_CREDENTIALS);
         }
 
         const userDto = new UserDto(user);
@@ -83,7 +87,7 @@ module.exports = class AuthService extends BaseService {
 
             const userData = await this.login(email, password);
 
-            res.cookie('refreshToken', userData.refreshToken, { maxAge: 30 * 24 * 60 * 60 * 1000, httpOnly: true });
+            res.cookie('refreshToken', userData.refreshToken, { maxAge: process.env.REFRESH_TOKEN_MAX_AGE, httpOnly: true });
 
             return this.response({
                 data: {
@@ -109,8 +113,14 @@ module.exports = class AuthService extends BaseService {
 
             res.clearCookie('refreshToken');
 
+            const authHeader = req.headers['authorization'];
+            if (authHeader) {
+                const token = authHeader && authHeader.split(' ')[1];
+                await tokenService.addTokenToBlacklist(token);
+            }
+            
             return this.response({
-                message: 'logout successfully'
+                message: RESPONSE_MESSAGES.SIGN_OUT
             });
         } catch (error) {
             next(error);
@@ -136,7 +146,7 @@ module.exports = class AuthService extends BaseService {
             const tokens = tokenService.generateTokens({ ...userDto });
             await tokenService.saveToken(userDto.id, tokens.refreshToken);
 
-            res.cookie('refreshToken', tokens.refreshToken, { maxAge: 30 * 24 * 60 * 60 * 1000, httpOnly: true });
+            res.cookie('refreshToken', tokens.refreshToken, { maxAge: process.env.REFRESH_TOKEN_MAX_AGE, httpOnly: true });
 
             return this.response({
                 data: {

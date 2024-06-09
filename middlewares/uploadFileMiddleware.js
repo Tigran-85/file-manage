@@ -1,4 +1,5 @@
 const multer = require("multer");
+const { ERROR_MESSAGES } = require("../common/validationMessage");
 
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
@@ -25,9 +26,9 @@ const fileFilter = (req, file, cb) => {
   if (allowedFileTypes.includes(file.mimetype)) {
     cb(null, true);
   } else {
-    cb(
+    return cb(
       new multer.MulterError(
-        "Invalid File format.",
+        ERROR_MESSAGES.INVALID_FILE_FORMAT,
         file,
       ),
       false,

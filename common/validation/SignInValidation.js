@@ -1,11 +1,11 @@
 const { body } = require("express-validator");
-const validationMessage = require("../validationMessage");
+const { VALIDATION_ERROR_MESSAGES } = require("../validationMessage");
 
 module.exports = [
-  body("email").trim().isEmail().withMessage(validationMessage.email),
+  body("email").trim().isEmail().withMessage(VALIDATION_ERROR_MESSAGES.EMAIL),
 
   body("password")
     .trim()
     .isLength({ min: 5 })
-    .withMessage(validationMessage.min(5)),
+    .withMessage(VALIDATION_ERROR_MESSAGES.min(5)),
 ];

@@ -1,11 +1,9 @@
-const bcrypt = require('bcrypt');
-const BaseService = require('./BaseService');
-const tokenService = require('./TokenService');
-const { users: userModel, refreshTokens: tokenModel, files: fileModel } = require("../models/index");
-const UserDto = require('../dtos/user.dto');
-const ApiError = require('../exceptions/apiErrors');
-const path = require('path');
-const fs = require('fs').promises;
+const BaseService = require("./BaseService");
+const { files: fileModel } = require("../models/index");
+const ApiError = require("../exceptions/apiErrors");
+const path = require("path");
+const fs = require("fs").promises;
+const { RESPONSE_MESSAGES, ERROR_MESSAGES } = require("../common/validationMessage");
 
 module.exports = class FileService extends BaseService {
 
@@ -16,7 +14,7 @@ module.exports = class FileService extends BaseService {
     async uploadFiles(req, res, next) {
         try {
             if (!req.file) {
-                throw ApiError.BadRequest('No file uploaded');
+                throw ApiError.BadRequest(ERROR_MESSAGES.NO_FILE_UPLOADED);
             }
             const { originalname, mimetype, size, filename } = req.file;
 
@@ -30,7 +28,7 @@ module.exports = class FileService extends BaseService {
             });
 
             return this.response({
-                message: "Uploaded successfully",
+                message: RESPONSE_MESSAGES.UPLOADED,
                 data: file
             });
 
@@ -63,7 +61,6 @@ module.exports = class FileService extends BaseService {
 
             });
         } catch (error) {
-            console.log(error);
             next(error);
         }
     }
@@ -75,7 +72,7 @@ module.exports = class FileService extends BaseService {
             const file = await fileModel.findByPk(id);
 
             if (!file) {
-                throw ApiError.BadRequest("File does not found");
+                throw ApiError.BadRequest(ERROR_MESSAGES.FILE_NOT_FOUND);
             }
 
             return this.response({
@@ -93,28 +90,37 @@ module.exports = class FileService extends BaseService {
             const { id } = req.params;
 
             const file = await fileModel.findByPk(id);
-            const oldFilePath = path.join(__dirname, '../uploads', file.name);
-            const newFilePath = path.join(__dirname, '../uploads', req.body.name);
 
             if (!file) {
-                throw ApiError.BadRequest("File does not found");
+                throw ApiError.BadRequest(ERROR_MESSAGES.FILE_NOT_FOUND);
             }
 
-            const updatedFile = await file.update(req.body);
-            
-            console.log('oldFilePath', oldFilePath);
-            console.log('newFilePath', newFilePath);
-            // console.log(file);
-            await fs.rename(oldFilePath, newFilePath);
+            const oldFilePath = path.join(__dirname, '../uploads', file.name);
+
+            await fs.unlink(oldFilePath);
+
+            const { originalname, mimetype, size, filename } = req.file;
+
+            const extension = path.extname(originalname);
+
+            // Update the file details in the database
+            file.name = filename;
+            file.extension = extension;
+            file.mimeType = mimetype;
+            file.size = size;
+            file.dateOfUpload = new Date();
+
+            await file.save();
 
             return this.response({
-                message: "Updated successfully",
+                message: RESPONSE_MESSAGES.UPDATED,
                 data: {
-                    updatedFile: updatedFile
+                    updatedFile: file
                 },
             })
             
         } catch (error) {
+            await fs.unlink(req.file.path);
             next(error);
         }
     }
@@ -126,15 +132,17 @@ module.exports = class FileService extends BaseService {
             const file = await fileModel.findByPk(id);
 
             if (!file) {
-                throw ApiError.BadRequest("File does not found");
+                throw ApiError.BadRequest(ERROR_MESSAGES.FILE_NOT_FOUND);
             }
 
-           await fs.unlink(`uploads\\${file.name}`);
+            const filePath = path.join(__dirname, '../uploads', file.name);
+
+            await fs.unlink(filePath);
 
             await file.destroy();
 
             return this.response({
-                message: "Deleted successfully",
+                message: RESPONSE_MESSAGES.DELETED,
                 data: {
                     file
                 },
@@ -151,14 +159,14 @@ module.exports = class FileService extends BaseService {
             const file = await fileModel.findByPk(id);
 
             if (!file) {
-                throw ApiError.BadRequest("File does not found");
+                throw ApiError.BadRequest(ERROR_MESSAGES.FILE_NOT_FOUND);
             }
 
             const filePath = path.join(__dirname, '../uploads', file.name);
 
             res.download(filePath, file.name, (err) => {
                 if (err) {
-                    return res.status(err.status).json({ message: 'Failed to download file', error: err });
+                    return res.status(err.status).json({ message: ERROR_MESSAGES.DOWLOAD_FAIL, error: err });
                 }
             }); 
         } catch (error) {

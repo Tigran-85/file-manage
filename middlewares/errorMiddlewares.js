@@ -1,7 +1,6 @@
-const ApiError = require('../exceptions/apiErrors');
-const BaseService = require("../services/BaseService");
-const baseService = new BaseService();
+const ApiError = require("../exceptions/apiErrors");
 const multer = require("multer");
+const { ERROR_MESSAGES } = require("../common/validationMessage");
 
 module.exports = function(err, req, res, next) {
     if (err instanceof ApiError) {
@@ -17,6 +16,5 @@ module.exports = function(err, req, res, next) {
          })
     }
 
-    console.log(err);
-    return res.status(500).json({ message: "Internal Server Error" })
+    return res.status(500).json({ message: ERROR_MESSAGES.SERVER_ERROR});
 }
