@@ -59,7 +59,12 @@ This project is a web application written in MySQL using Sequelize
     npm run db-create-blacklists - // creates blacklists tables
     ```
 
-4. Install Mysql database and create database with name `files`    
+4. Install Mysql database and create database with name `files`
+
+5. Create uploads folder in root folder:
+    ```bash
+    mkdir uploads
+    ```
 
 ## Running the Application
 
